@@ -37,7 +37,7 @@ const PIXEL_ASSETS = {
   wizards: {
     apprentice: {
       name: "Ashen Apprentice",
-      lore: "A timid mage who studies beside dying embers, believing even the faintest flame remembers the sun.",
+      lore: "A master of the ancient, terrifying shadows who solely uses them to perform elaborate puppet shows for lonely forest kittens.",
       colors: { 'H': '#2A2A2A', 'F': '#E3DAC9', 'R': '#4B3F72', 'E': '#FFD700', 'L': '#FFD700', 'S': '#111' },
       data: [
         "      HHHH      ", "     HHHHHH     ", "    HHHHHHHH    ", "    HH E  EHH   ",
@@ -47,7 +47,7 @@ const PIXEL_ASSETS = {
     },
     scholar: {
       name: "The Hollow Scholar",
-      lore: "Bound to a library that no longer exists, he seeks the final chapter of a story that hasn't been written.",
+      lore: "He guards the world’s most dangerous secrets, but uses the oldest books to hide his secret sticker collection.",
       colors: { 'H': '#111', 'F': '#A0A0A0', 'R': '#1A1A1A', 'E': '#00FFFF', 'B': '#E3DAC9', 'S': '#000', 'K': '#4B3F72' },
       data: [
         "      HHHH      ", "     HHHHHH     ", "    HHHHHHHH    ", "    HH E  EHH   ",
@@ -57,7 +57,7 @@ const PIXEL_ASSETS = {
     },
     sage: {
       name: "The Ember Sage",
-      lore: "He carries the warmth of a thousand hearths in his robes, warming the souls of those lost in the winter void.",
+      lore: "Master of the eternal flame, he primarily uses his power to ensure his wool socks are always perfectly toasty.",
       colors: { 'H': '#5A2A1A', 'F': '#E3DAC9', 'R': '#C4622D', 'E': '#FF8C00', 'G': '#FF4500', 'S': '#331A0D', 'W': '#8B4513' },
       data: [
         "      HHHH      ", "     HHHHHH     ", "    HHHHHHHH    ", "    HH E  EHH G ",
@@ -67,7 +67,7 @@ const PIXEL_ASSETS = {
     },
     magus: {
       name: "The Storm Magus",
-      lore: "A conduit for the sky's rage. He does not control the lightning; he simply invites it to stay for tea.",
+      lore: "A powerful lord of thunder who only calls the rain so he has an excuse to wear yellow boots.",
       colors: { 'H': '#0A2A20', 'F': '#A8E6CF', 'R': '#2F6B5F', 'E': '#00FFFF', 'Z': '#FFFFFF', 'S': '#051510', 'T': '#000' },
       data: [
         "    ZZ HHHH      ", "   ZZ HHHHHH     ", "    HHHHHHHH    ", "    HH E  EHH T ",
@@ -77,7 +77,7 @@ const PIXEL_ASSETS = {
     },
     seer: {
       name: "The Blind Seer",
-      lore: "Eyes closed to the present, she watches the threads of tomorrow tangle and untangle in the silence.",
+      lore: "She gazes deep into the terrifying, infinite void only to report back that it feels like a soft, fuzzy hug.",
       colors: { 'H': '#333', 'F': '#E3DAC9', 'R': '#222', 'E': '#FFF', 'X': '#D4AF37', 'S': '#111', 'O': '#D4AF37' },
       data: [
         "      HHHH  O   ", "     HHHHHH     ", "    HHHHHHHH    ", "    HHHHHHHH    ",
