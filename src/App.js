@@ -10,8 +10,10 @@ import {
 import {
   getAuth,
   onAuthStateChanged,
-  signInWithCustomToken,
-  signInAnonymously
+  signInAnonymously,
+  GoogleAuthProvider,
+  signInWithPopup,
+  linkWithPopup
 } from 'firebase/auth';
 
 // --- CONFIGURATION & FIREBASE SETUP ---
@@ -38,18 +40,9 @@ const PIXEL_ASSETS = {
       lore: "A timid mage who studies beside dying embers, believing even the faintest flame remembers the sun.",
       colors: { 'H': '#2A2A2A', 'F': '#E3DAC9', 'R': '#4B3F72', 'E': '#FFD700', 'L': '#FFD700', 'S': '#111' },
       data: [
-        "      HHHH      ",
-        "     HHHHHH     ",
-        "    HHHHHHHH    ",
-        "    HH E  EHH   ",
-        "    HHHHHHHH    ",
-        "     HHHHHH     ",
-        "      RRRR      ",
-        "     RRRRRR     ",
-        "    RRRRRRRR L  ",
-        "    RRRRRRRR LL ",
-        "     RRRRRR  L  ",
-        "      SS SS     "
+        "      HHHH      ", "     HHHHHH     ", "    HHHHHHHH    ", "    HH E  EHH   ",
+        "    HHHHHHHH    ", "     HHHHHH     ", "      RRRR      ", "     RRRRRR     ",
+        "    RRRRRRRR L  ", "    RRRRRRRR LL ", "     RRRRRR  L  ", "      SS SS     "
       ]
     },
     scholar: {
@@ -57,18 +50,9 @@ const PIXEL_ASSETS = {
       lore: "Bound to a library that no longer exists, he seeks the final chapter of a story that hasn't been written.",
       colors: { 'H': '#111', 'F': '#A0A0A0', 'R': '#1A1A1A', 'E': '#00FFFF', 'B': '#E3DAC9', 'S': '#000', 'K': '#4B3F72' },
       data: [
-        "      HHHH      ",
-        "     HHHHHH     ",
-        "    HHHHHHHH    ",
-        "    HH E  EHH   ",
-        "    HHHHHHHH    ",
-        "  BB HHHHHH     ",
-        " BBB RRRR       ",
-        " BBB RRRRRR     ",
-        "  BB RRRRRRRR   ",
-        "     RRRRRRRR   ",
-        "     RRRRRR     ",
-        "      SS SS     "
+        "      HHHH      ", "     HHHHHH     ", "    HHHHHHHH    ", "    HH E  EHH   ",
+        "    HHHHHHHH    ", "  BB HHHHHH     ", " BBB RRRR       ", " BBB RRRRRR     ",
+        "  BB RRRRRRRR   ", "     RRRRRRRR   ", "     RRRRRR     ", "      SS SS     "
       ]
     },
     sage: {
@@ -76,18 +60,9 @@ const PIXEL_ASSETS = {
       lore: "He carries the warmth of a thousand hearths in his robes, warming the souls of those lost in the winter void.",
       colors: { 'H': '#5A2A1A', 'F': '#E3DAC9', 'R': '#C4622D', 'E': '#FF8C00', 'G': '#FF4500', 'S': '#331A0D', 'W': '#8B4513' },
       data: [
-        "      HHHH      ",
-        "     HHHHHH     ",
-        "    HHHHHHHH    ",
-        "    HH E  EHH G ",
-        "    HHHHHHHH GGG",
-        "     HHHHHH  W G",
-        "      RRRR   W  ",
-        "     RRRRRR  W  ",
-        "    RRRRRRRR W  ",
-        "    RRRRRRRR W  ",
-        "     RRRRRR  W  ",
-        "      SS SS     "
+        "      HHHH      ", "     HHHHHH     ", "    HHHHHHHH    ", "    HH E  EHH G ",
+        "    HHHHHHHH GGG", "     HHHHHH  W G", "      RRRR   W  ", "     RRRRRR  W  ",
+        "    RRRRRRRR W  ", "    RRRRRRRR W  ", "     RRRRRR  W  ", "      SS SS     "
       ]
     },
     magus: {
@@ -95,18 +70,9 @@ const PIXEL_ASSETS = {
       lore: "A conduit for the sky's rage. He does not control the lightning; he simply invites it to stay for tea.",
       colors: { 'H': '#0A2A20', 'F': '#A8E6CF', 'R': '#2F6B5F', 'E': '#00FFFF', 'Z': '#FFFFFF', 'S': '#051510', 'T': '#000' },
       data: [
-        "    ZZ HHHH      ",
-        "   ZZ HHHHHH     ",
-        "    HHHHHHHH    ",
-        "    HH E  EHH T ",
-        "    HHHHHHHH TTT",
-        "     HHHHHH   T ",
-        "      RRRR    T ",
-        "     RRRRRR   T ",
-        "    RRRRRRRR  T ",
-        "   ZZ RRRRRRRR T ",
-        " ZZ  RRRRRR     ",
-        "      SS SS     "
+        "    ZZ HHHH      ", "   ZZ HHHHHH     ", "    HHHHHHHH    ", "    HH E  EHH T ",
+        "    HHHHHHHH TTT", "     HHHHHH   T ", "      RRRR    T ", "     RRRRRR   T ",
+        "    RRRRRRRR  T ", "   ZZ RRRRRRRR T ", " ZZ  RRRRRR     ", "      SS SS     "
       ]
     },
     seer: {
@@ -114,18 +80,9 @@ const PIXEL_ASSETS = {
       lore: "Eyes closed to the present, she watches the threads of tomorrow tangle and untangle in the silence.",
       colors: { 'H': '#333', 'F': '#E3DAC9', 'R': '#222', 'E': '#FFF', 'X': '#D4AF37', 'S': '#111', 'O': '#D4AF37' },
       data: [
-        "      HHHH  O   ",
-        "     HHHHHH     ",
-        "    HHHHHHHH    ",
-        "    HHHHHHHH    ",
-        "    H XXXXX H   ",
-        "   O HHHHHHHH   ",
-        "      RRRR      ",
-        "     RRRRRR   O ",
-        "    RRRRRRRR    ",
-        "    RRRRRRRR    ",
-        "   O RRRRRR     ",
-        "      SS SS     "
+        "      HHHH  O   ", "     HHHHHH     ", "    HHHHHHHH    ", "    HHHHHHHH    ",
+        "    H XXXXX H   ", "   O HHHHHHHH   ", "      RRRR      ", "     RRRRRR   O ",
+        "    RRRRRRRR    ", "    RRRRRRRR    ", "   O RRRRRR     ", "      SS SS     "
       ]
     }
   },
@@ -171,32 +128,18 @@ const OMENS = [
 ];
 
 // --- COMPONENTS ---
-
 const PixelImage = memo(({ data, colors, scale = 4, className = "", animate = true }) => {
   if (!data || !data[0]) return null;
   const width = data[0].length;
   const height = data.length;
- 
   return (
     <div className={`relative inline-block ${className} ${animate ? 'animate-float-cozy' : ''}`}>
-      <svg
-        width={width * scale}
-        height={height * scale}
-        viewBox={`0 0 ${width} ${height}`}
-        shapeRendering="crispEdges"
-        xmlns="http://www.w3.org/2000/svg"
-      >
+      <svg width={width * scale} height={height * scale} viewBox={`0 0 ${width} ${height}`} shapeRendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
         {data.map((row, y) => row.split('').map((char, x) => {
           if (char === ' ') return null;
           const isGlow = "ELGZO".includes(char);
           return (
-            <rect
-              key={`${x}-${y}`}
-              x={x} y={y}
-              width="1.05" height="1.05"
-              fill={colors[char] || '#F0F'}
-              className={isGlow && animate ? 'animate-eye-glow' : ''}
-            />
+            <rect key={`${x}-${y}`} x={x} y={y} width="1.05" height="1.05" fill={colors[char] || '#F0F'} className={isGlow && animate ? 'animate-eye-glow' : ''} />
           )
         }))}
       </svg>
@@ -216,18 +159,10 @@ const GlobalBackground = memo(({ backgroundId }) => {
   );
 });
 
-const HomeView = memo(({
-  tasks, handleAddTask, animatingTaskAdd, equipped, completeTask, abandonTask, setView
-}) => {
+const HomeView = memo(({ tasks, handleAddTask, animatingTaskAdd, equipped, completeTask, abandonTask, setView }) => {
   const [localTitle, setLocalTitle] = useState("");
   const [localSize, setLocalSize] = useState("medium");
-
-  const onSeal = (e) => {
-    e.preventDefault();
-    if (!localTitle) return;
-    handleAddTask(localTitle, localSize);
-    setLocalTitle("");
-  };
+  const onSeal = (e) => { e.preventDefault(); if (!localTitle) return; handleAddTask(localTitle, localSize); setLocalTitle(""); };
 
   return (
     <div className="p-6 md:p-8 flex flex-col h-full overflow-y-auto relative z-10">
@@ -239,26 +174,15 @@ const HomeView = memo(({
           <form onSubmit={onSeal} className="bg-black/15 backdrop-blur-[2px] border border-[#4B3F72]/50 p-6 rounded-lg shadow-[inset_0_0_20px_rgba(75,63,114,0.1)] relative transition-all">
             <h3 className="text-[#D4AF37] font-serif mb-4 text-lg flex items-center gap-2"><Sparkles size={18} /> Inscribe Ritual</h3>
             <div className="space-y-4">
-              <input
-                value={localTitle}
-                onChange={(e) => setLocalTitle(e.target.value)}
-                required
-                placeholder="What spell shall be cast?..."
-                className="w-full bg-black/40 border border-[#4B3F72]/50 text-[#E3DAC9] p-4 rounded-md font-serif focus:outline-none focus:border-[#C4622D] transition-all hover:bg-black/60"
-              />
+              <input value={localTitle} onChange={(e) => setLocalTitle(e.target.value)} required placeholder="What spell shall be cast?..." className="w-full bg-black/40 border border-[#4B3F72]/50 text-[#E3DAC9] p-4 rounded-md font-serif focus:outline-none focus:border-[#C4622D] transition-all hover:bg-black/60" />
               <div className="flex gap-3">
-                <select
-                  value={localSize}
-                  onChange={(e) => setLocalSize(e.target.value)}
-                  className="bg-black/40 border border-[#4B3F72]/50 text-[#E3DAC9] p-3 rounded-md flex-1 font-serif focus:outline-none cursor-pointer"
-                >
+                <select value={localSize} onChange={(e) => setLocalSize(e.target.value)} className="bg-black/40 border border-[#4B3F72]/50 text-[#E3DAC9] p-3 rounded-md flex-1 font-serif focus:outline-none cursor-pointer">
                   <option value="small">Minor Incantation (+5)</option>
                   <option value="medium">Standard Ritual (+10)</option>
                   <option value="large">Grand Evocation (+20)</option>
                 </select>
                 <button type="submit" className="bg-[#4B3F72]/60 hover:bg-[#4B3F72]/90 border border-[#4B3F72] text-[#E3DAC9] px-6 py-3 rounded-md font-serif transition-all flex items-center gap-2 group shadow-lg active:scale-95">
-                  <Plus size={20} className="group-hover:rotate-90 transition-transform" />
-                  Seal
+                  <Plus size={20} className="group-hover:rotate-90 transition-transform" /> Seal
                 </button>
               </div>
             </div>
@@ -268,54 +192,28 @@ const HomeView = memo(({
               </div>
             )}
           </form>
-
           <div className="flex flex-col gap-4 overflow-y-auto pr-2 pb-20 scrollbar-hide">
-            {tasks.length === 0 && (
-              <div className="text-center p-12 border border-dashed border-[#4B3F72]/30 rounded-lg text-[#A0A0A0] italic font-serif">
-                The Ledger is empty. No rituals active.
-              </div>
-            )}
+            {tasks.length === 0 && <div className="text-center p-12 border border-dashed border-[#4B3F72]/30 rounded-lg text-[#A0A0A0] italic font-serif">The Ledger is empty. No rituals active.</div>}
             {tasks.map(task => (
               <div key={task.id} className="bg-black/20 backdrop-blur-[1px] border border-[#4B3F72]/30 p-4 rounded-md flex justify-between items-center group hover:bg-black/40 transition-all border-l-4 border-l-[#D4AF37] animate-ritual-in">
-                <div>
-                  <h4 className="text-[#E3DAC9] font-serif text-lg">{task.title}</h4>
-                  <p className="text-[10px] text-[#A0A0A0] uppercase tracking-widest">{task.size} essence</p>
-                </div>
+                <div><h4 className="text-[#E3DAC9] font-serif text-lg">{task.title}</h4><p className="text-[10px] text-[#A0A0A0] uppercase tracking-widest">{task.size} essence</p></div>
                 <div className="flex gap-2">
-                  <button onClick={() => completeTask(task)} className="p-2 text-[#2F6B5F] hover:bg-[#2F6B5F]/20 rounded transition-colors" title="Complete Ritual">
-                    <CheckCircle2 size={24} />
-                  </button>
-                  <button onClick={() => abandonTask(task.id)} className="p-2 text-[#A0A0A0] hover:text-[#C4622D] rounded transition-colors" title="Abandon Ritual">
-                    <Skull size={20} />
-                  </button>
+                  <button onClick={() => completeTask(task)} className="p-2 text-[#2F6B5F] hover:bg-[#2F6B5F]/20 rounded transition-colors" title="Complete Ritual"><CheckCircle2 size={24} /></button>
+                  <button onClick={() => abandonTask(task.id)} className="p-2 text-[#A0A0A0] hover:text-[#C4622D] rounded transition-colors" title="Abandon Ritual"><Skull size={20} /></button>
                 </div>
               </div>
             ))}
           </div>
         </div>
-
         <div className="hidden md:flex flex-col items-center justify-center border border-[#4B3F72]/30 rounded-lg bg-black/10 backdrop-blur-[1px] relative overflow-hidden p-8 shadow-inner">
-          <PixelImage
-            data={PIXEL_ASSETS.wizards[equipped.wizard].data}
-            colors={PIXEL_ASSETS.wizards[equipped.wizard].colors}
-            scale={14}
-          />
-          <div className="mt-10 text-center">
-            <h3 className="text-[#E3DAC9] font-serif text-2xl tracking-[0.2em] uppercase drop-shadow-md">{PIXEL_ASSETS.wizards[equipped.wizard].name}</h3>
-          </div>
+          <PixelImage data={PIXEL_ASSETS.wizards[equipped.wizard].data} colors={PIXEL_ASSETS.wizards[equipped.wizard].colors} scale={14} />
+          <div className="mt-10 text-center"><h3 className="text-[#E3DAC9] font-serif text-2xl tracking-[0.2em] uppercase drop-shadow-md">{PIXEL_ASSETS.wizards[equipped.wizard].name}</h3></div>
         </div>
       </div>
-     
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-auto pt-6 border-t border-[#4B3F72]/30">
-        <button onClick={() => setView('sanctum')} className="flex items-center justify-center gap-3 bg-black/40 hover:bg-[#4B3F72]/40 border border-[#4B3F72] text-[#E3DAC9] p-4 rounded-md font-serif uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95 shadow-lg">
-          <Clock size={20} /> Inner Sanctum
-        </button>
-        <button onClick={() => setView('journal')} className="flex items-center justify-center gap-3 bg-black/40 hover:bg-[#4B3F72]/40 border border-[#4B3F72] text-[#E3DAC9] p-4 rounded-md font-serif uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95 shadow-lg">
-          <Book size={20} /> Journal
-        </button>
-        <button onClick={() => setView('bazaar')} className="flex items-center justify-center gap-3 bg-black/40 hover:bg-[#4B3F72]/40 border border-[#4B3F72] text-[#E3DAC9] p-4 rounded-md font-serif uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95 shadow-lg">
-          <ShoppingBag size={20} /> Bazaar
-        </button>
+        <button onClick={() => setView('sanctum')} className="flex items-center justify-center gap-3 bg-black/40 hover:bg-[#4B3F72]/40 border border-[#4B3F72] text-[#E3DAC9] p-4 rounded-md font-serif uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95 shadow-lg"><Clock size={20} /> Inner Sanctum</button>
+        <button onClick={() => setView('journal')} className="flex items-center justify-center gap-3 bg-black/40 hover:bg-[#4B3F72]/40 border border-[#4B3F72] text-[#E3DAC9] p-4 rounded-md font-serif uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95 shadow-lg"><Book size={20} /> Journal</button>
+        <button onClick={() => setView('bazaar')} className="flex items-center justify-center gap-3 bg-black/40 hover:bg-[#4B3F72]/40 border border-[#4B3F72] text-[#E3DAC9] p-4 rounded-md font-serif uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95 shadow-lg"><ShoppingBag size={20} /> Bazaar</button>
       </div>
     </div>
   );
@@ -323,52 +221,33 @@ const HomeView = memo(({
 
 const BazaarView = memo(({ souls, inventory, equipped, buyItem, equipItem, setView }) => {
   const [lorePopup, setLorePopup] = useState(null);
-
   return (
     <div className="p-8 h-full overflow-y-auto relative z-10">
       <div className="flex justify-between items-center mb-10">
         <h2 className="text-3xl font-serif text-[#D4AF37] uppercase tracking-[0.25em] drop-shadow-[0_0_8px_rgba(212,175,55,0.4)]">Bazaar of Arcana</h2>
         <button onClick={() => setView('home')} className="text-[#A0A0A0] hover:text-[#E3DAC9] hover:rotate-90 transition-transform"><X size={40} /></button>
       </div>
-
-      <h3 className="text-xl font-serif text-[#E3DAC9] mb-6 border-b border-[#4B3F72]/30 pb-2 flex items-center gap-2">
-        <Zap size={20} className="text-[#D4AF37]" /> Spirit Companions
-      </h3>
+      <h3 className="text-xl font-serif text-[#E3DAC9] mb-6 border-b border-[#4B3F72]/30 pb-2 flex items-center gap-2"><Zap size={20} className="text-[#D4AF37]" /> Spirit Companions</h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-12">
         {Object.keys(PIXEL_ASSETS.wizards).map(id => {
           const item = PIXEL_ASSETS.wizards[id];
           const cost = id === 'apprentice' ? 0 : id === 'scholar' ? 150 : id === 'sage' ? 300 : id === 'magus' ? 500 : 750;
           const isOwned = inventory.wizards.includes(id);
           const isEquipped = equipped.wizard === id;
-
           return (
             <div key={id} className="bg-black/30 backdrop-blur-[2px] border border-[#2A2A2A] rounded-lg p-5 flex flex-col items-center group relative hover:border-[#D4AF37] transition-all hover:shadow-[0_0_15px_rgba(212,175,55,0.1)]">
-              <button
-                onClick={() => setLorePopup(item)}
-                className="absolute top-3 right-3 text-[#A0A0A0] hover:text-[#D4AF37] transition-colors"
-              >
-                <Info size={16} />
-              </button>
-              <div className="h-28 flex items-center justify-center">
-                <PixelImage data={item.data} colors={item.colors} scale={5} animate={isEquipped} />
-              </div>
+              <button onClick={() => setLorePopup(item)} className="absolute top-3 right-3 text-[#A0A0A0] hover:text-[#D4AF37] transition-colors"><Info size={16} /></button>
+              <div className="h-28 flex items-center justify-center"><PixelImage data={item.data} colors={item.colors} scale={5} animate={isEquipped} /></div>
               <h4 className="text-[#E3DAC9] font-serif mt-4 text-center text-sm">{item.name}</h4>
               <div className="mt-5 w-full">
-                {isEquipped ? (
-                  <button className="w-full py-2 bg-[#2F6B5F]/30 text-[#A8E6CF] border border-[#2F6B5F] rounded font-serif uppercase text-[10px] tracking-widest cursor-default">Manifested</button>
-                ) : isOwned ? (
-                  <button onClick={() => equipItem('wizard', id)} className="w-full py-2 bg-[#4B3F72]/40 text-[#E3DAC9] border border-[#4B3F72] rounded font-serif uppercase text-[10px] tracking-widest hover:bg-[#4B3F72]/60 transition-colors">Summon</button>
-                ) : (
-                  <button onClick={() => buyItem('wizards', id, cost)} className={`w-full py-2 border rounded font-serif uppercase text-[10px] tracking-widest transition-all ${souls >= cost ? 'border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37]/20' : 'border-[#2A2A2A] text-[#444] cursor-not-allowed'}`}>
-                    {cost} Souls
-                  </button>
-                )}
+                {isEquipped ? <button className="w-full py-2 bg-[#2F6B5F]/30 text-[#A8E6CF] border border-[#2F6B5F] rounded font-serif uppercase text-[10px] tracking-widest cursor-default">Manifested</button>
+                : isOwned ? <button onClick={() => equipItem('wizard', id)} className="w-full py-2 bg-[#4B3F72]/40 text-[#E3DAC9] border border-[#4B3F72] rounded font-serif uppercase text-[10px] tracking-widest hover:bg-[#4B3F72]/60 transition-colors">Summon</button>
+                : <button onClick={() => buyItem('wizards', id, cost)} className={`w-full py-2 border rounded font-serif uppercase text-[10px] tracking-widest transition-all ${souls >= cost ? 'border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37]/20' : 'border-[#2A2A2A] text-[#444] cursor-not-allowed'}`}>{cost} Souls</button>}
               </div>
             </div>
           );
         })}
       </div>
-
       <h3 className="text-xl font-serif text-[#E3DAC9] mb-6 border-b border-[#4B3F72]/30 pb-2 flex items-center gap-2"><Eye size={20} className="text-[#4B3F72]" /> Reality Planes</h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {Object.keys(PIXEL_ASSETS.backgrounds).map(id => {
@@ -376,29 +255,19 @@ const BazaarView = memo(({ souls, inventory, equipped, buyItem, equipItem, setVi
           const cost = id === 'observatory' ? 0 : id === 'library' ? 120 : id === 'cavern' ? 200 : 350;
           const isOwned = inventory.backgrounds.includes(id);
           const isEquipped = equipped.background === id;
-
           return (
             <div key={id} className="bg-black/30 backdrop-blur-[2px] border border-[#2A2A2A] rounded-lg p-5 flex flex-col items-center hover:border-[#4B3F72] transition-all">
-              <div className="h-24 w-full bg-black/40 rounded mb-4 overflow-hidden flex items-center justify-center opacity-60">
-                 <PixelImage data={item.data} colors={item.colors} scale={4} animate={false} />
-              </div>
+              <div className="h-24 w-full bg-black/40 rounded mb-4 overflow-hidden flex items-center justify-center opacity-60"><PixelImage data={item.data} colors={item.colors} scale={4} animate={false} /></div>
               <h4 className="text-[#E3DAC9] font-serif text-center">{item.name}</h4>
               <div className="mt-5 w-full">
-                {isEquipped ? (
-                  <button className="w-full py-2 bg-[#2F6B5F]/30 text-[#A8E6CF] border border-[#2F6B5F] rounded font-serif uppercase text-[10px] tracking-widest cursor-default">Active Plane</button>
-                ) : isOwned ? (
-                  <button onClick={() => equipItem('background', id)} className="w-full py-2 bg-[#4B3F72]/40 text-[#E3DAC9] border border-[#4B3F72] rounded font-serif uppercase text-[10px] tracking-widest hover:bg-[#4B3F72]/60 transition-colors">Shift</button>
-                ) : (
-                  <button onClick={() => buyItem('backgrounds', id, cost)} className={`w-full py-2 border rounded font-serif uppercase text-[10px] tracking-widest transition-all ${souls >= cost ? 'border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37]/20' : 'border-[#2A2A2A] text-[#444] cursor-not-allowed'}`}>
-                    {cost} Souls
-                  </button>
-                )}
+                {isEquipped ? <button className="w-full py-2 bg-[#2F6B5F]/30 text-[#A8E6CF] border border-[#2F6B5F] rounded font-serif uppercase text-[10px] tracking-widest cursor-default">Active Plane</button>
+                : isOwned ? <button onClick={() => equipItem('background', id)} className="w-full py-2 bg-[#4B3F72]/40 text-[#E3DAC9] border border-[#4B3F72] rounded font-serif uppercase text-[10px] tracking-widest hover:bg-[#4B3F72]/60 transition-colors">Shift</button>
+                : <button onClick={() => buyItem('backgrounds', id, cost)} className={`w-full py-2 border rounded font-serif uppercase text-[10px] tracking-widest transition-all ${souls >= cost ? 'border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37]/20' : 'border-[#2A2A2A] text-[#444] cursor-not-allowed'}`}>{cost} Souls</button>}
               </div>
             </div>
           );
         })}
       </div>
-
       {lorePopup && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
           <div className="bg-[#1a1818] border-2 border-[#3A2010] p-10 rounded-lg max-w-md shadow-2xl relative text-center">
@@ -415,42 +284,21 @@ const BazaarView = memo(({ souls, inventory, equipped, buyItem, equipItem, setVi
 
 const JournalView = memo(({ journalText, setJournalText, saveJournal, setView }) => (
   <div className="p-8 h-full flex flex-col max-w-4xl mx-auto w-full relative z-10">
-    <div className="flex justify-between items-center mb-6">
-      <h2 className="text-3xl font-serif text-[#D4AF37] uppercase tracking-[0.25em]">Grimoire Journal</h2>
-      <button onClick={() => setView('home')} className="text-[#A0A0A0] hover:text-[#E3DAC9] transition-transform hover:scale-110"><X size={32} /></button>
-    </div>
-    <div className="flex-1 relative bg-black/20 backdrop-blur-[1px] p-10 rounded-lg shadow-2xl border border-[#3A2010]">
-      <textarea
-        className="w-full h-full bg-transparent text-[#E3DAC9] font-serif text-xl leading-relaxed resize-none focus:outline-none placeholder-[#4A4A4A]"
-        placeholder="Bind your thoughts to the arcane pages..."
-        value={journalText}
-        onChange={(e) => setJournalText(e.target.value)}
-      />
-    </div>
-    <div className="mt-8 flex justify-end">
-      <button onClick={saveJournal} className="flex items-center gap-2 bg-[#D4AF37]/10 hover:bg-[#D4AF37]/30 border border-[#D4AF37] text-[#D4AF37] px-10 py-4 rounded-md font-serif uppercase tracking-widest transition-all shadow-lg active:scale-95">
-        <Save size={20} /> Seal Entry
-      </button>
-    </div>
+    <div className="flex justify-between items-center mb-6"><h2 className="text-3xl font-serif text-[#D4AF37] uppercase tracking-[0.25em]">Grimoire Journal</h2><button onClick={() => setView('home')} className="text-[#A0A0A0] hover:text-[#E3DAC9] transition-transform hover:scale-110"><X size={32} /></button></div>
+    <div className="flex-1 relative bg-black/20 backdrop-blur-[1px] p-10 rounded-lg shadow-2xl border border-[#3A2010]"><textarea className="w-full h-full bg-transparent text-[#E3DAC9] font-serif text-xl leading-relaxed resize-none focus:outline-none placeholder-[#4A4A4A]" placeholder="Bind your thoughts to the arcane pages..." value={journalText} onChange={(e) => setJournalText(e.target.value)} /></div>
+    <div className="mt-8 flex justify-end"><button onClick={saveJournal} className="flex items-center gap-2 bg-[#D4AF37]/10 hover:bg-[#D4AF37]/30 border border-[#D4AF37] text-[#D4AF37] px-10 py-4 rounded-md font-serif uppercase tracking-widest transition-all shadow-lg active:scale-95"><Save size={20} /> Seal Entry</button></div>
   </div>
 ));
 
 const TimerModeView = memo(({ timer, formatTime, exit, wizardId }) => (
   <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center p-12 text-center animate-fadeIn">
-    <button onClick={exit} className="absolute top-8 left-8 text-[#A0A0A0] hover:text-[#E3DAC9] flex items-center gap-2 font-serif uppercase tracking-widest bg-black/60 px-6 py-3 rounded-md backdrop-blur-md border border-[#4B3F72] transition-all hover:bg-black/90">
-      <LogOut size={22} /> Break Circle
-    </button>
+    <button onClick={exit} className="absolute top-8 left-8 text-[#A0A0A0] hover:text-[#E3DAC9] flex items-center gap-2 font-serif uppercase tracking-widest bg-black/60 px-6 py-3 rounded-md backdrop-blur-md border border-[#4B3F72] transition-all hover:bg-black/90"><LogOut size={22} /> Break Circle</button>
     <div className="mb-12 relative">
       <div className="absolute -inset-20 bg-[#D4AF37]/5 blur-[100px] animate-pulse rounded-full" />
-      <div className="text-[140px] md:text-[240px] font-mono leading-none text-[#E3DAC9] drop-shadow-[0_0_40px_rgba(212,175,55,0.4)] relative">
-        {formatTime(timer.timeRemaining)}
-      </div>
+      <div className="text-[140px] md:text-[240px] font-mono leading-none text-[#E3DAC9] drop-shadow-[0_0_40px_rgba(212,175,55,0.4)] relative">{formatTime(timer.timeRemaining)}</div>
       <p className="text-[#D4AF37] font-serif italic text-2xl tracking-[0.3em] mt-6 animate-pulse uppercase">Focus Manifesting...</p>
     </div>
-    <div className="relative">
-       <PixelImage data={PIXEL_ASSETS.wizards[wizardId].data} colors={PIXEL_ASSETS.wizards[wizardId].colors} scale={20} />
-       <div className="absolute -inset-10 border border-[#D4AF37]/10 rounded-full animate-[spin_10s_linear_infinite]" />
-    </div>
+    <div className="relative"><PixelImage data={PIXEL_ASSETS.wizards[wizardId].data} colors={PIXEL_ASSETS.wizards[wizardId].colors} scale={20} /><div className="absolute -inset-10 border border-[#D4AF37]/10 rounded-full animate-[spin_10s_linear_infinite]" /></div>
   </div>
 ));
 
@@ -468,11 +316,7 @@ function App() {
   const [animatingTaskAdd, setAnimatingTaskAdd] = useState(false);
 
   useEffect(() => {
-    const initAuth = async () => {
-      try {
-        await signInAnonymously(auth);
-      } catch (err) { console.error(err); }
-    };
+    const initAuth = async () => { try { await signInAnonymously(auth); } catch (err) { console.error(err); } };
     initAuth();
     const unsubscribe = onAuthStateChanged(auth, setUser);
     return () => unsubscribe();
@@ -490,16 +334,31 @@ function App() {
         setEquipped(data.equipped || { wizard: 'apprentice', background: 'observatory' });
         setJournalText(data.journalText || "");
       } else {
-        setDoc(docRef, {
-          souls: 100, tasks: [],
-          inventory: { wizards: ['apprentice'], backgrounds: ['observatory'] },
-          equipped: { wizard: 'apprentice', background: 'observatory' },
-          journalText: ""
-        });
+        setDoc(docRef, { souls: 100, tasks: [], inventory: { wizards: ['apprentice'], backgrounds: ['observatory'] }, equipped: { wizard: 'apprentice', background: 'observatory' }, journalText: "" });
       }
     }, (err) => console.error(err));
     return () => unsubscribe();
   }, [user]);
+
+  const bindSoulWithGoogle = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      if (auth.currentUser.isAnonymous) {
+        await linkWithPopup(auth.currentUser, provider);
+        alert("Soul bound successfully! Your progress is now eternal.");
+      } else {
+        await signInWithPopup(auth, provider);
+      }
+      setSidebarOpen(false);
+    } catch (error) {
+      if (error.code === 'auth/credential-already-in-use') {
+        alert("This Google account already has a soul ledger. Switching to it now...");
+        await signInWithPopup(auth, provider);
+      } else {
+        console.error("Auth Error:", error);
+      }
+    }
+  };
 
   const syncToCloud = useCallback(async (updates) => {
     if (!user) return;
@@ -515,9 +374,7 @@ function App() {
           const nextTime = prev.timeRemaining - 1;
           if (nextTime <= 0) {
             const n = (souls || 100) + 15;
-            setSouls(n);
-            syncToCloud({ souls: n });
-            setView('home'); return null;
+            setSouls(n); syncToCloud({ souls: n }); setView('home'); return null;
           }
           return { ...prev, timeRemaining: nextTime };
         });
@@ -527,52 +384,39 @@ function App() {
   }, [focusTimer, syncToCloud, souls]);
 
   const handleAddTask = useCallback(async (title, size) => {
-    setAnimatingTaskAdd(true);
-    setTimeout(() => setAnimatingTaskAdd(false), 2000);
+    setAnimatingTaskAdd(true); setTimeout(() => setAnimatingTaskAdd(false), 2000);
     const newTask = { id: Date.now().toString(), title, size, status: 'idle' };
     const nextTasks = [newTask, ...tasks];
-    setTasks(nextTasks);
-    await syncToCloud({ tasks: nextTasks });
+    setTasks(nextTasks); await syncToCloud({ tasks: nextTasks });
   }, [tasks, syncToCloud]);
 
   const completeTask = useCallback(async (task) => {
     const rewards = { small: 5, medium: 10, large: 20 };
     const nextSouls = (souls || 100) + (rewards[task.size] || 0);
     const nextTasks = tasks.filter(t => t.id !== task.id);
-    setSouls(nextSouls);
-    setTasks(nextTasks);
-    await syncToCloud({ souls: nextSouls, tasks: nextTasks });
+    setSouls(nextSouls); setTasks(nextTasks); await syncToCloud({ souls: nextSouls, tasks: nextTasks });
   }, [souls, tasks, syncToCloud]);
 
   const abandonTask = useCallback(async (id) => {
     const nextTasks = tasks.filter(t => t.id !== id);
-    setTasks(nextTasks);
-    await syncToCloud({ tasks: nextTasks });
+    setTasks(nextTasks); await syncToCloud({ tasks: nextTasks });
   }, [tasks, syncToCloud]);
 
   const buyItem = useCallback(async (type, id, cost) => {
     if (souls >= cost && !inventory[type].includes(id)) {
       const nextInv = { ...inventory, [type]: [...inventory[type], id] };
       const nextSouls = souls - cost;
-      setSouls(nextSouls);
-      setInventory(nextInv);
-      await syncToCloud({ souls: nextSouls, inventory: nextInv });
+      setSouls(nextSouls); setInventory(nextInv); await syncToCloud({ souls: nextSouls, inventory: nextInv });
     }
   }, [souls, inventory, syncToCloud]);
 
   const equipItem = useCallback(async (type, id) => {
     const nextEquipped = { ...equipped, [type]: id };
-    setEquipped(nextEquipped);
-    await syncToCloud({ equipped: nextEquipped });
+    setEquipped(nextEquipped); await syncToCloud({ equipped: nextEquipped });
   }, [equipped, syncToCloud]);
 
   const saveJournal = useCallback(() => syncToCloud({ journalText }), [journalText, syncToCloud]);
-
-  const formatTime = (seconds) => {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-  };
+  const formatTime = (seconds) => { const m = Math.floor(seconds / 60); const s = seconds % 60; return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`; };
 
   return (
     <>
@@ -586,21 +430,15 @@ function App() {
         .animate-eye-glow { animation: eyeGlow 2s ease-in-out infinite; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .animate-fadeIn { animation: fadeIn 0.4s ease-out forwards; }
-        @keyframes ritualIn {
-          0% { opacity: 0; transform: scale(0.95); box-shadow: 0 0 40px #D4AF37; }
-          50% { box-shadow: 0 0 60px #D4AF37; }
-          100% { opacity: 1; transform: scale(1); box-shadow: none; }
-        }
+        @keyframes ritualIn { 0% { opacity: 0; transform: scale(0.95); box-shadow: 0 0 40px #D4AF37; } 50% { box-shadow: 0 0 60px #D4AF37; } 100% { opacity: 1; transform: scale(1); box-shadow: none; } }
         .animate-ritual-in { animation: ritualIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         .vignette { pointer-events: none; position: fixed; inset: 0; z-index: 40; box-shadow: inset 0 0 250px rgba(0,0,0,1); }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .hud-panel { box-shadow: 0 0 50px rgba(0,0,0,0.9), inset 0 0 30px rgba(75, 63, 114, 0.1); }
       `}</style>
-
       <div className="relative w-full h-screen flex items-center justify-center overflow-hidden bg-[#050505]">
         <GlobalBackground backgroundId={equipped.background} />
         <div className="vignette" />
-       
         {view === 'timer-mode' && focusTimer ? (
           <TimerModeView timer={focusTimer} formatTime={formatTime} exit={() => { setFocusTimer(null); setView('home'); }} wizardId={equipped.wizard} />
         ) : (
@@ -612,53 +450,26 @@ function App() {
             </nav>
             {sidebarOpen && (
               <div className="fixed inset-y-0 left-0 w-[300px] z-50 bg-[#0a0a0a]/98 backdrop-blur-2xl border-r border-[#4B3F72] shadow-2xl transition-all animate-fadeIn flex flex-col">
-                <div className="p-6 border-b border-[#4B3F72]/30 flex justify-between items-center bg-black/20">
-                  <h2 className="text-2xl font-serif text-[#D4AF37] tracking-widest uppercase">Grimoire</h2>
-                  <button onClick={() => setSidebarOpen(false)} className="hover:rotate-90 transition-transform text-[#A0A0A0] hover:text-[#D4AF37]"><X size={28} /></button>
-                </div>
+                <div className="p-6 border-b border-[#4B3F72]/30 flex justify-between items-center bg-black/20"><h2 className="text-2xl font-serif text-[#D4AF37] tracking-widest uppercase">Grimoire</h2><button onClick={() => setSidebarOpen(false)} className="hover:rotate-90 transition-transform text-[#A0A0A0] hover:text-[#D4AF37]"><X size={28} /></button></div>
                 <div className="p-8 flex flex-col gap-8 flex-1">
-                  {!user && (
-                    <button onClick={() => signInAnonymously(auth)} className="flex items-center gap-4 text-sm text-[#D4AF37] font-serif uppercase hover:brightness-125 transition-all">
-                      <Zap size={18} /> Seal Your Soul (Sign In)
-                    </button>
+                  {(!user || user.isAnonymous) && (
+                    <button onClick={bindSoulWithGoogle} className="flex items-center gap-4 text-sm text-[#D4AF37] font-serif uppercase hover:brightness-125 transition-all text-left"><Zap size={18} /> Seal Your Soul (Google Sign-In)</button>
                   )}
+                  {user && !user.isAnonymous && <div className="text-[10px] text-[#A8E6CF] uppercase tracking-[0.2em] px-2">Soul Bound: {user.email}</div>}
                   <button onClick={() => { setView('home'); setSidebarOpen(false); }} className="flex items-center gap-4 text-xl text-[#E3DAC9] font-serif uppercase hover:text-[#D4AF37] group"><Book size={24} className="group-hover:scale-110" /> Rituals</button>
                   <button onClick={() => { setView('sanctum'); setSidebarOpen(false); }} className="flex items-center gap-4 text-xl text-[#E3DAC9] font-serif uppercase hover:text-[#D4AF37] group"><Clock size={24} className="group-hover:scale-110" /> Inner Sanctum</button>
                   <button onClick={() => { setView('bazaar'); setSidebarOpen(false); }} className="flex items-center gap-4 text-xl text-[#E3DAC9] font-serif uppercase hover:text-[#D4AF37] group"><ShoppingBag size={24} className="group-hover:scale-110" /> Bazaar</button>
                   <button onClick={() => { setView('omen'); setSidebarOpen(false); }} className="flex items-center gap-4 text-xl text-[#E3DAC9] font-serif uppercase hover:text-[#D4AF37] group"><Sparkles size={24} className="group-hover:scale-110" /> Omens</button>
                 </div>
-                <div className="p-6 border-t border-[#4B3F72]/30 flex flex-col gap-4">
-                  <div className="flex justify-center">
-                    <a href="https://ko-fi.com/Y8Y71VXGQ3" target="_blank" rel="noopener noreferrer" className="relative bg-black border border-[#D4AF37] text-[#D4AF37] px-6 py-3 rounded-lg font-serif flex items-center gap-2 hover:bg-[#D4AF37] hover:text-black transition-all group">
-                      <Zap size={18} className="group-hover:animate-pulse" /> Buy me a potion
-                    </a>
-                  </div>
-                </div>
+                <div className="p-6 border-t border-[#4B3F72]/30 flex flex-col gap-4"><div className="flex justify-center"><a href="https://ko-fi.com/Y8Y71VXGQ3" target="_blank" rel="noopener noreferrer" className="relative bg-black border border-[#D4AF37] text-[#D4AF37] px-6 py-3 rounded-lg font-serif flex items-center gap-2 hover:bg-[#D4AF37] hover:text-black transition-all group"><Zap size={18} className="group-hover:animate-pulse" /> Buy me a potion</a></div></div>
               </div>
             )}
             <div className="flex-1 overflow-hidden">
-              {view === 'home' && <HomeView tasks={tasks} handleAddTask={handleAddTask} animatingTaskAdd={animatingTaskAdd} completeTask={completeTask} abandonTask={abandonTask} equipped={equipped} setView={setView} />}
+              {view === 'home' && <HomeView souls={souls} tasks={tasks} handleAddTask={handleAddTask} animatingTaskAdd={animatingTaskAdd} completeTask={completeTask} abandonTask={abandonTask} equipped={equipped} setView={setView} />}
               {view === 'bazaar' && <BazaarView souls={souls} inventory={inventory} equipped={equipped} buyItem={buyItem} equipItem={equipItem} setView={setView} />}
               {view === 'journal' && <JournalView journalText={journalText} setJournalText={setJournalText} saveJournal={saveJournal} setView={setView} />}
-              {view === 'omen' && (
-                <div className="flex flex-col items-center justify-center h-full p-12 text-center animate-fadeIn">
-                  <Sparkles size={60} className="text-[#D4AF37] mb-10 animate-pulse" />
-                  <p className="text-4xl font-serif italic text-[#E3DAC9] leading-relaxed max-w-3xl drop-shadow-md px-4">"{activeOmen}"</p>
-                  <button onClick={() => setActiveOmen(OMENS[Math.floor(Math.random()*OMENS.length)])} className="mt-16 px-12 py-4 border border-[#4B3F72] text-[#A0A0A0] font-serif uppercase tracking-widest bg-black/40 hover:bg-[#4B3F72]/20 hover:text-[#E3DAC9] shadow-xl active:scale-95 transition-all">Consult Again</button>
-                  <button onClick={() => setView('home')} className="mt-6 text-sm text-[#555] uppercase tracking-[0.3em] hover:text-[#D4AF37]">Return</button>
-                </div>
-              )}
-              {view === 'sanctum' && (
-                <div className="flex flex-col items-center justify-center h-full p-12 text-center animate-fadeIn">
-                  <div className="p-8 border-2 border-[#D4AF37]/20 rounded-full mb-10 shadow-[0_0_50px_rgba(212,175,55,0.1)]"><Clock size={80} className="text-[#D4AF37]" /></div>
-                  <h2 className="text-4xl font-serif uppercase mb-6 tracking-[0.2em]">The Inner Sanctum</h2>
-                  <p className="text-[#A0A0A0] mb-12 italic text-lg max-w-lg leading-relaxed">Choose a duration to manifest deep focus.</p>
-                  <div className="flex gap-8">
-                    {[25, 45, 60].map(mins => <button key={mins} onClick={() => { setFocusTimer({ timeRemaining: mins * 60, active: true }); setView('timer-mode'); }} className="group relative w-24 h-24 flex flex-col items-center justify-center border-2 border-[#4B3F72] hover:border-[#D4AF37] text-[#E3DAC9] font-serif transition-all bg-black/40 hover:scale-110 shadow-lg active:scale-95"><span className="text-3xl font-bold group-hover:text-[#D4AF37]">{mins}</span><span className="text-[10px] uppercase tracking-tighter opacity-60">minutes</span></button>)}
-                  </div>
-                  <button onClick={() => setView('home')} className="mt-16 text-xs text-[#555] uppercase tracking-[0.3em] hover:text-[#D4AF37]">Return</button>
-                </div>
-              )}
+              {view === 'omen' && (<div className="flex flex-col items-center justify-center h-full p-12 text-center animate-fadeIn"><Sparkles size={60} className="text-[#D4AF37] mb-10 animate-pulse" /><p className="text-4xl font-serif italic text-[#E3DAC9] leading-relaxed max-w-3xl drop-shadow-md px-4">"{activeOmen}"</p><button onClick={() => setActiveOmen(OMENS[Math.floor(Math.random()*OMENS.length)])} className="mt-16 px-12 py-4 border border-[#4B3F72] text-[#A0A0A0] font-serif uppercase tracking-widest bg-black/40 hover:bg-[#4B3F72]/20 hover:text-[#E3DAC9] shadow-xl active:scale-95 transition-all">Consult Again</button><button onClick={() => setView('home')} className="mt-6 text-sm text-[#555] uppercase tracking-[0.3em] hover:text-[#D4AF37]">Return</button></div>)}
+              {view === 'sanctum' && (<div className="flex flex-col items-center justify-center h-full p-12 text-center animate-fadeIn"><div className="p-8 border-2 border-[#D4AF37]/20 rounded-full mb-10 shadow-[0_0_50px_rgba(212,175,55,0.1)]"><Clock size={80} className="text-[#D4AF37]" /></div><h2 className="text-4xl font-serif uppercase mb-6 tracking-[0.2em]">The Inner Sanctum</h2><p className="text-[#A0A0A0] mb-12 italic text-lg max-w-lg leading-relaxed">Choose a duration to manifest deep focus.</p><div className="flex gap-8">{[25, 45, 60].map(mins => <button key={mins} onClick={() => { setFocusTimer({ timeRemaining: mins * 60, active: true }); setView('timer-mode'); }} className="group relative w-24 h-24 flex flex-col items-center justify-center border-2 border-[#4B3F72] hover:border-[#D4AF37] text-[#E3DAC9] font-serif transition-all bg-black/40 hover:scale-110 shadow-lg active:scale-95"><span className="text-3xl font-bold group-hover:text-[#D4AF37]">{mins}</span><span className="text-[10px] uppercase tracking-tighter opacity-60">minutes</span></button>)}</div><button onClick={() => setView('home')} className="mt-16 text-xs text-[#555] uppercase tracking-[0.3em] hover:text-[#D4AF37]">Return</button></div>)}
             </div>
           </div>
         )}
@@ -666,5 +477,4 @@ function App() {
     </>
   );
 }
-
 export default App;
