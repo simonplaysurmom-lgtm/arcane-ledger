@@ -458,7 +458,7 @@ function App() {
   const [user, setUser] = useState(null);
   const [view, setView] = useState('home');
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [souls, setSouls] = useState(1000);
+  const [souls, setSouls] = useState(100);
   const [tasks, setTasks] = useState([]);
   const [inventory, setInventory] = useState({ wizards: ['apprentice'], backgrounds: ['observatory'] });
   const [equipped, setEquipped] = useState({ wizard: 'apprentice', background: 'observatory' });
@@ -484,14 +484,14 @@ function App() {
     const unsubscribe = onSnapshot(docRef, (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
-        setSouls(data.souls ?? 1000);
+        setSouls(data.souls ?? 100);
         setTasks(data.tasks || []);
         setInventory(data.inventory || { wizards: ['apprentice'], backgrounds: ['observatory'] });
         setEquipped(data.equipped || { wizard: 'apprentice', background: 'observatory' });
         setJournalText(data.journalText || "");
       } else {
         setDoc(docRef, {
-          souls: 1000, tasks: [],
+          souls: 100, tasks: [],
           inventory: { wizards: ['apprentice'], backgrounds: ['observatory'] },
           equipped: { wizard: 'apprentice', background: 'observatory' },
           journalText: ""
@@ -537,7 +537,7 @@ function App() {
 
   const completeTask = useCallback(async (task) => {
     const rewards = { small: 5, medium: 10, large: 20 };
-    const nextSouls = (souls || 1000) + (rewards[task.size] || 0);
+    const nextSouls = (souls || 100) + (rewards[task.size] || 0);
     const nextTasks = tasks.filter(t => t.id !== task.id);
     setSouls(nextSouls);
     setTasks(nextTasks);
