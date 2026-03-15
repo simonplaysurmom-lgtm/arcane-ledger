@@ -18,7 +18,7 @@ import {
 
 // --- CONFIGURATION & FIREBASE SETUP ---
 const firebaseConfig = {
-  apiKey: "AIzaSyDWyii4gtmouZTjajGx4K-BPUf5mDn09lk",
+  apiKey: "AIzaSyDWyiI4gtmouZTjajGx4K-BPUf5mDn09lk",
   authDomain: "arcane-ledger-8afc5.firebaseapp.com",
   projectId: "arcane-ledger-8afc5",
   storageBucket: "arcane-ledger-8afc5.firebasestorage.app",
