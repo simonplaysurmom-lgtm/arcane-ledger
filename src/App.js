@@ -514,7 +514,7 @@ function App() {
           if (!prev) return null;
           const nextTime = prev.timeRemaining - 1;
           if (nextTime <= 0) {
-            const n = (souls || 1000) + 15;
+            const n = (souls || 100) + 15;
             setSouls(n);
             syncToCloud({ souls: n });
             setView('home'); return null;
