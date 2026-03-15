@@ -13,7 +13,8 @@ import {
   signInAnonymously,
   GoogleAuthProvider,
   signInWithPopup,
-  linkWithPopup
+  linkWithPopup,
+  signOut
 } from 'firebase/auth';
 
 // --- CONFIGURATION & FIREBASE SETUP ---
@@ -304,6 +305,7 @@ const TimerModeView = memo(({ timer, formatTime, exit, wizardId }) => (
 
 function App() {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true); // --- PERSISTENCE FIX ---
   const [view, setView] = useState('home');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [souls, setSouls] = useState(100);
@@ -315,10 +317,16 @@ function App() {
   const [focusTimer, setFocusTimer] = useState(null);
   const [animatingTaskAdd, setAnimatingTaskAdd] = useState(false);
 
+  // --- REVISED PERSISTENCE LOGIC ---
   useEffect(() => {
-    const initAuth = async () => { try { await signInAnonymously(auth); } catch (err) { console.error(err); } };
-    initAuth();
-    const unsubscribe = onAuthStateChanged(auth, setUser);
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false); // Stop loading once Firebase says if a user exists
+      
+      if (!currentUser) {
+        signInAnonymously(auth).catch(err => console.error("Anon Error:", err));
+      }
+    });
     return () => unsubscribe();
   }, []);
 
@@ -342,6 +350,15 @@ function App() {
 
   const bindSoulWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
+    // Safety check for loading/null states
+    if (!auth.currentUser) {
+      try {
+        await signInWithPopup(auth, provider);
+        setSidebarOpen(false);
+      } catch (err) { console.error("Login Error:", err); }
+      return;
+    }
+
     try {
       if (auth.currentUser.isAnonymous) {
         await linkWithPopup(auth.currentUser, provider);
@@ -418,6 +435,19 @@ function App() {
   const saveJournal = useCallback(() => syncToCloud({ journalText }), [journalText, syncToCloud]);
   const formatTime = (seconds) => { const m = Math.floor(seconds / 60); const s = seconds % 60; return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`; };
 
+  // --- LOADING VIEW ---
+  if (loading) {
+    return (
+      <div className="relative w-full h-screen flex items-center justify-center bg-[#050505] overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#1a1a4a] to-[#050510] opacity-50" />
+        <div className="relative z-10 flex flex-col items-center">
+          <div className="w-16 h-16 border-4 border-[#D4AF37] border-dashed rounded-full animate-spin mb-6 opacity-60" />
+          <p className="text-[#E3DAC9] font-serif tracking-[0.4em] uppercase text-sm animate-pulse">Restoring Grimoire...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <style>{`
@@ -455,7 +485,12 @@ function App() {
                   {(!user || user.isAnonymous) && (
                     <button onClick={bindSoulWithGoogle} className="flex items-center gap-4 text-sm text-[#D4AF37] font-serif uppercase hover:brightness-125 transition-all text-left"><Zap size={18} /> Seal Your Soul (Google Sign-In)</button>
                   )}
-                  {user && !user.isAnonymous && <div className="text-[10px] text-[#A8E6CF] uppercase tracking-[0.2em] px-2">Soul Bound: {user.email}</div>}
+                  {user && !user.isAnonymous && (
+                    <div className="space-y-4">
+                      <div className="text-[10px] text-[#A8E6CF] uppercase tracking-[0.2em] px-2">Soul Bound: {user.email}</div>
+                      <button onClick={() => signOut(auth)} className="flex items-center gap-4 text-sm text-[#C4622D] font-serif uppercase hover:brightness-125 transition-all"><LogOut size={18} /> Break Bond (Sign Out)</button>
+                    </div>
+                  )}
                   <button onClick={() => { setView('home'); setSidebarOpen(false); }} className="flex items-center gap-4 text-xl text-[#E3DAC9] font-serif uppercase hover:text-[#D4AF37] group"><Book size={24} className="group-hover:scale-110" /> Rituals</button>
                   <button onClick={() => { setView('sanctum'); setSidebarOpen(false); }} className="flex items-center gap-4 text-xl text-[#E3DAC9] font-serif uppercase hover:text-[#D4AF37] group"><Clock size={24} className="group-hover:scale-110" /> Inner Sanctum</button>
                   <button onClick={() => { setView('bazaar'); setSidebarOpen(false); }} className="flex items-center gap-4 text-xl text-[#E3DAC9] font-serif uppercase hover:text-[#D4AF37] group"><ShoppingBag size={24} className="group-hover:scale-110" /> Bazaar</button>
@@ -465,7 +500,7 @@ function App() {
               </div>
             )}
             <div className="flex-1 overflow-hidden">
-              {view === 'home' && <HomeView souls={souls} tasks={tasks} handleAddTask={handleAddTask} animatingTaskAdd={animatingTaskAdd} completeTask={completeTask} abandonTask={abandonTask} equipped={equipped} setView={setView} />}
+              {view === 'home' && <HomeView tasks={tasks} handleAddTask={handleAddTask} animatingTaskAdd={animatingTaskAdd} completeTask={completeTask} abandonTask={abandonTask} equipped={equipped} setView={setView} />}
               {view === 'bazaar' && <BazaarView souls={souls} inventory={inventory} equipped={equipped} buyItem={buyItem} equipItem={equipItem} setView={setView} />}
               {view === 'journal' && <JournalView journalText={journalText} setJournalText={setJournalText} saveJournal={saveJournal} setView={setView} />}
               {view === 'omen' && (<div className="flex flex-col items-center justify-center h-full p-12 text-center animate-fadeIn"><Sparkles size={60} className="text-[#D4AF37] mb-10 animate-pulse" /><p className="text-4xl font-serif italic text-[#E3DAC9] leading-relaxed max-w-3xl drop-shadow-md px-4">"{activeOmen}"</p><button onClick={() => setActiveOmen(OMENS[Math.floor(Math.random()*OMENS.length)])} className="mt-16 px-12 py-4 border border-[#4B3F72] text-[#A0A0A0] font-serif uppercase tracking-widest bg-black/40 hover:bg-[#4B3F72]/20 hover:text-[#E3DAC9] shadow-xl active:scale-95 transition-all">Consult Again</button><button onClick={() => setView('home')} className="mt-6 text-sm text-[#555] uppercase tracking-[0.3em] hover:text-[#D4AF37]">Return</button></div>)}
